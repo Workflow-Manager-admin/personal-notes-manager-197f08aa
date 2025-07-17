@@ -1,104 +1,130 @@
-/* CSS Variables for Theme Management */
 :root {
-  /* Light theme colors */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8f9fa;
-  --text-primary: #282c34;
-  --text-secondary: #61dafb;
-  --border-color: #e9ecef;
-  --button-bg: #007bff;
-  --button-text: #ffffff;
+  --kavia-primary: #4A90E2;
+  --kavia-secondary: #50E3C2;
+  --kavia-accent: #F5A623;
+
+  --bg-primary: #f9fafc;
+  --bg-secondary: #ffffff;
+  --text-primary: #1a1a1a;
+  --text-secondary: #678;
+  --border-color: #e7e7ec;
+  --button-bg: var(--kavia-primary);
+  --button-text: #fff;
 }
 
+/* Dark theme */
 [data-theme="dark"] {
-  /* Dark theme colors */
   --bg-primary: #1a1a1a;
-  --bg-secondary: #282c34;
+  --bg-secondary: #23232c;
   --text-primary: #ffffff;
-  --text-secondary: #61dafb;
-  --border-color: #404040;
-  --button-bg: #0056b3;
-  --button-text: #ffffff;
+  --text-secondary: #aad;
+  --border-color: #34344d;
+  --button-bg: var(--kavia-primary);
+  --button-text: #fff;
 }
 
-.App {
-  text-align: center;
+body, .App {
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  min-height: 100vh;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.app-header {
+  user-select: none;
+  border-bottom: 1.5px solid var(--border-color);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.navbar {
+  min-height: 64px;
 }
 
-.App-header {
-  background-color: var(--bg-secondary);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: var(--text-primary);
-  transition: background-color 0.3s ease;
-  position: relative;
+.sidebar {
+  background: var(--bg-secondary);
+  border-right: 1.5px solid var(--border-color);
 }
 
-.App-link {
-  color: var(--text-secondary);
-  transition: color 0.3s ease;
+.btn {
+  display: inline-block;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  padding: 0.65em 1.3em;
+  background: var(--button-bg, #4A90E2);
+  color: var(--button-text, #fff);
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, box-shadow .14s;
+  margin-top: 0;
+}
+
+.btn:hover, .btn:focus-visible {
+  background: var(--kavia-secondary, #50E3C2);
+  color: #1a1a1a;
 }
 
 .theme-toggle {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background-color: var(--button-bg);
+  position: fixed;
+  bottom: 26px;
+  right: 26px;
+  background: var(--button-bg);
   color: var(--button-text);
   border: none;
-  border-radius: 8px;
-  padding: 10px 20px;
-  font-size: 14px;
-  font-weight: 600;
+  border-radius: 24px;
+  padding: 10px 25px;
+  font-size: 15px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  opacity: 0.94;
+  font-weight: 700;
+  box-shadow: 0 3px 18px #0002;
+  z-index: 1002;
+  outline: none;
+  transition: all 0.23s;
 }
-
 .theme-toggle:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  opacity: 0.9;
+  background: var(--kavia-secondary);
+  color: #1a1a1a;
+  opacity: 1;
+  transform: translateY(-3px) scale(1.05);
 }
 
-.theme-toggle:active {
-  transform: translateY(0);
+@media (max-width: 900px) {
+  .sidebar { max-width: 44vw; min-width: unset; padding: 1.25em; }
+  .note-editor { padding: 12px !important; }
 }
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+@media (max-width: 640px) {
+  .main-content {
+    flex-direction: column !important;
   }
-  to {
-    transform: rotate(360deg);
-  }
+  .sidebar { max-width: 100vw; height: unset; border-right: none; border-bottom: 1.5px solid var(--border-color); }
+}
+.note-list {
+  margin-top: 8px;
+}
+.sidebar-note {
+  transition: background 0.13s, border 0.14s;
 }
 
-/* Responsive design for mobile */
-@media (max-width: 768px) {
-  .theme-toggle {
-    top: 10px;
-    right: 10px;
-    padding: 8px 16px;
-    font-size: 12px;
+.note-editor {
+  border-radius: 12px;
+  box-shadow: 0 1.5px 20px #2221;
+  margin: 2.5vw 3vw;
+  background: var(--bg-secondary);
+}
+.note-editor input[type="text"], .note-editor textarea {
+  font-size: 15px;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 500px) {
+  .app-header .navbar {
+    flex-direction: column;
+    font-size: 16px;
+    gap: 4px;
+    padding: 0 8px;
+  }
+  .note-editor {
+    margin: 10px 2px;
+    padding: 6px !important;
   }
 }
