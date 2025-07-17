@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
-const API_BASE = process.env.REACT_APP_BACKEND_URL || 'http://localhost:3001';
+/*
+ * Picks up backend URL from .env (REACT_APP_BACKEND_URL); defaults to HTTPS+port as fallback.
+ * For local dev, set .env accordingly; in cloud/CI, HTTPS mandatory!
+ */
+const API_BASE = process.env.REACT_APP_BACKEND_URL
+  || 'https://vscode-internal-595-beta.beta01.cloud.kavia.ai:3001'; // safest fallback for Kavia
 
 const COLOR_PRIMARY = '#4A90E2';
 const COLOR_SECONDARY = '#50E3C2';
@@ -332,14 +337,24 @@ async function apiFetch(path, { method = 'GET', token, body, query } = {}) {
     const params = new URLSearchParams(query).toString();
     url += `?${params}`;
   }
-  const res = await fetch(url, {
-    method,
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(body ? {'Content-Type': 'application/json'} : {})
-    },
-    body: body ? JSON.stringify(body) : undefined
-  });
+  let res;
+  try {
+    res = await fetch(url, {
+      method,
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(body ? {'Content-Type': 'application/json'} : {})
+      },
+      body: body ? JSON.stringify(body) : undefined
+    });
+  } catch (fetchErr) {
+    // Handle CORS, network, HTTPS/HTTP errors explicitly
+    throw new Error(
+      "Failed to reach backend API. This is usually a network, CORS, or HTTP/HTTPS/protocol mismatch error. " +
+      "Please check that your REACT_APP_BACKEND_URL in .env uses the correct protocol (https:// for cloud, http:// for local), host, and port, " +
+      "and that the backend is running and accessible from your browser."
+    );
+  }
   if (!res.ok) {
     const text = await res.text();
     throw new Error(text || `API error (${res.status})`);
@@ -421,7 +436,34 @@ function App() {
         setAuthError('Invalid server response');
       }
     } catch (e) {
-      setAuthError(e.message || 'Login/Sign Up failed');
+      // Detect our custom error and surface a friendlier prompt
+      if (
+        e.message &&
+        e.message.includes("Failed to reach backend API. This is usually a network, CORS, or HTTP/HTTPS/protocol mismatch error")
+      ) {
+        setAuthError(
+          <>
+            <div>
+              <b>Signup/Login failed:</b> Could not reach backend API. This is usually due to a network, CORS, or protocol (HTTP/HTTPS) mismatch.<br/>
+              <ol>
+                <li>
+                  Make sure your <code>.env</code> file exists in <code>notes_frontend/</code>
+                   and <code>REACT_APP_BACKEND_URL</code> is set to the <b>exact</b> backend URL
+                   (including correct protocol and port, e.g., <code>https://...:3001</code>).
+                </li>
+                <li>
+                  The backend server must be running and accessible from your browser.
+                </li>
+                <li>
+                  If you are on cloud/CI, you <b>must</b> use <code>https://</code> for both frontend and backend.
+                </li>
+              </ol>
+            </div>
+          </>
+        );
+      } else {
+        setAuthError(e.message || 'Login/Sign Up failed');
+      }
     } finally {
       setAuthLoading(false);
     }
